@@ -83,12 +83,14 @@
     <script>
     var old_pct = 0;
     var old_time = performance.now();
+    var readings = [];
     var download = function(size, callback)
     {
         var time = performance.now();
-        //var ip = "skeen.website:3000";
+        var ip = "skeen.website:3000";
         //var ip = "10.192.150.111:3000";
-        var ip = "10.11.102.76:3000";
+        //var ip = "10.11.102.76:3000";
+        //var throttle = 3 * 1000 * 1000;
         var throttle = 0;
         $.ajax({
             method: 'GET',
@@ -107,7 +109,15 @@
             {
                 // Calculate bytes per second, from % per second
                 var speed_bps = speed * bytes;
-                console.log(Math.round(speed_bps / 1000) / 100, "MiB/s");
+                readings.push(speed_bps);
+                if(readings.length > 10)
+                {
+                    readings.shift();
+                }
+                var sum = readings.reduce(function(a, b) { return a + b; });
+                var avg = sum / readings.length;
+
+                console.log(Math.round(avg / 1000) / 100, "MiB/s");
             }
             /*,
             progress: function(e) 
